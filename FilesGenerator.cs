@@ -32,7 +32,7 @@ namespace AMQ.Generator
 
         private string GenerateNumberWithDecimal(double root, int i)
         {           
-            return ((root + i) / 10).ToString("{0:0.0}");
+            return ((root + i) / 10).ToString("0.##");
         }
 
         private string GenerateReferenceId(int i)
