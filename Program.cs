@@ -1,11 +1,15 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using AMQ.Feeder;
+using AMQ.Generator;
+
+var generator = new FilesGenerator();
+generator.GenerateFrom("templates/message.txt");
 
 Console.WriteLine("Hello, World!");
-const string TOPIC_NAME = "srk.topic.journey";
+const string TOPIC_NAME = "srk.topic.test.journey";
 const string BROKER = "tcp://localhost:61616";
 
-var publisher = new SimpleTopicPublisher(TOPIC_NAME, BROKER);
+using var publisher = new SimpleTopicPublisher(TOPIC_NAME, BROKER);
 
 var perSecondMessages = 27;
 var delay = 1000/perSecondMessages;
