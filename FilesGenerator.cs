@@ -7,13 +7,13 @@ namespace AMQ.Generator
 {
     public class FilesGenerator
     {
-        public void GenerateFrom(string src)
+        public void GenerateFrom(string src, int fileCount)
         {
             var lines = File.ReadAllLines(src);
             var length = lines.Length;
             var newLines = new string[length];
 
-            for (int i = 0; i < 1000; i++)
+            for (int i = 0; i < fileCount; i++)
             {
                 var replacements = new Dictionary<string, object> {
                     { "Number3", Seed(963315, i) },
