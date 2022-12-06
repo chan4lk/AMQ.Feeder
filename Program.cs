@@ -5,34 +5,36 @@ using Microsoft.Extensions.Configuration;
 
 var config = new ConfigurationBuilder().AddJsonFile("appsettings.json", false).Build();
 
-var fileCount = int.Parse(config["FILE_COUNT"]);
+var FILE_COUNT = int.Parse(config["FILE_COUNT"]);
+var TOPIC_NAME = config["TOPIC_NAME"];
+var BROKER = config["BROKER"];
+var SOURCE = config["SOURCE"];
+var PER_SECOND_MESSAGES = int.Parse(config["PER_SECOND_MESSAGES"]); ;
+
 var generator = new FilesGenerator();
-generator.GenerateFrom(config["SOURCE"], fileCount);
+generator.GenerateFrom(SOURCE, FILE_COUNT);
 
 Console.WriteLine("Hello, World!");
-string TOPIC_NAME = config["TOPIC_NAME"];
-string BROKER = config["BROKER"];
 
 using var publisher = new SimpleTopicPublisher(TOPIC_NAME, BROKER);
 
-var perSecondMessages = int.Parse(config["PER_SECOND_MESSAGES"]); ;
 var index = 0;
 Timer timer;
 timer = new Timer(x =>
 {
     
-    if(index > fileCount / perSecondMessages)
+    if(index > FILE_COUNT / PER_SECOND_MESSAGES)
     {
         Console.WriteLine("Done sending messages {0} ", DateTime.Now.ToString("T"));
     }
     else
     {
         var count = 0;
-        Console.WriteLine("Started sending {0} messages {1} ", fileCount / perSecondMessages, DateTime.Now.ToString("T"));
-        while (count < perSecondMessages)
+        Console.WriteLine("Started sending {0} message {1} ", index + 1, DateTime.Now.ToString("T"));
+        while (count < PER_SECOND_MESSAGES)
         {
             count++;
-            var destFile = $"templates/replaced_{index * perSecondMessages + count}.txt";
+            var destFile = $"templates/replaced_{index * PER_SECOND_MESSAGES + count}.txt";
             
             if (File.Exists(destFile))
             {
