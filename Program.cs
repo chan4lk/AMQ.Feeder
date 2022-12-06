@@ -1,24 +1,27 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using AMQ.Feeder;
 using AMQ.Generator;
+using Microsoft.Extensions.Configuration;
 
-var fileCount = 100;
+var config = new ConfigurationBuilder().AddJsonFile("appsettings.json", false).Build();
+
+var fileCount = int.Parse(config["FILE_COUNT"]);
 var generator = new FilesGenerator();
-generator.GenerateFrom("templates/message.txt", fileCount);
+generator.GenerateFrom(config["SOURCE"], fileCount);
 
 Console.WriteLine("Hello, World!");
-const string TOPIC_NAME = "srk.topic.test.journey";
-const string BROKER = "tcp://localhost:61616";
+string TOPIC_NAME = config["TOPIC_NAME"];
+string BROKER = config["BROKER"];
 
 using var publisher = new SimpleTopicPublisher(TOPIC_NAME, BROKER);
 
-var perSecondMessages = 27;
+var perSecondMessages = int.Parse(config["PER_SECOND_MESSAGES"]); ;
 var index = 0;
 Timer timer;
 timer = new Timer(x =>
 {
     
-    if(index >= fileCount / perSecondMessages)
+    if(index > fileCount / perSecondMessages)
     {
         Console.WriteLine("Done sending messages {0} ", DateTime.Now.ToString("T"));
     }
@@ -30,10 +33,13 @@ timer = new Timer(x =>
         {
             count++;
             var destFile = $"templates/replaced_{index * perSecondMessages + count}.txt";
-            Console.WriteLine("Handling file {0}", destFile);
-
-            var fileContent = File.ReadAllText(destFile);
-            publisher.SendMessage(fileContent);
+            
+            if (File.Exists(destFile))
+            {
+                Console.WriteLine("Handling file {0}", destFile);
+                var fileContent = File.ReadAllText(destFile);
+                publisher.SendMessage(fileContent);
+            }
         }
     }
     index++;
